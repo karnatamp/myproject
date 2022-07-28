@@ -1,0 +1,131 @@
+{% extends 'base_deputy.html' %}
+{% block title %}Allocate Priviledge{% endblock %}
+{% block styles %}
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/img/favicon/favicon.ico') }}"/>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+/>
+
+<!-- Icons. Uncomment required icon fonts -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}"/>
+
+<!-- Core CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}"
+      class="template-customizer-core-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}"
+      class="template-customizer-theme-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}"/>
+
+<!-- Vendors CSS -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}"/>
+
+<!-- Page CSS -->
+<!-- Page -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/pages/page-auth.css') }}"/>
+<!-- Helpers -->
+<script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
+
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/libs/jquery/jquery.js') }}"></script>
+
+{% endblock %}
+
+{% block pageContent %}
+<div class="content-wrapper">
+    <!-- Content -->
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">User Settings/</span> Allocate Priviledge</h4>
+
+        <!-- Basic Layout -->
+        <div class="row">
+            <div class="col-xl">
+                <div class="card mb-12">
+                    <div class="card-body">
+                        <form id="formRegister" method="POST">
+                            <div class="mb-3">
+                                <label for="users" class="form-label">Users *</label>
+                                <select id="users" name="users" class="form-select">
+                                    <option value="" selected>-- Please Select --</option>
+                                    {% for key in users %}
+                                        <option value="{{ key.id }}">{{ key.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl">
+                <div class="card mb-2">
+                </div>
+            </div>
+
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-xl">
+                <div id="loadAllDetailsPrivilage"></div>
+            </div>
+        </div>
+    </div>
+    <!-- / Content -->
+    <div class="content-backdrop fade"></div>
+</div>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function (){
+    $("#users").change(function() {
+
+        var user = $("#users").val();
+        $.post("/get-page-priv", {
+                user: user,
+            },
+            function(data, status) {
+                $("#loadAllDetailsPrivilage").empty();
+                $("#loadAllDetailsPrivilage").append(data);
+            });
+    });
+});
+function fillSpan(id) {
+	if (document.getElementById('changeCon'+id).checked) {
+		document.getElementById('viewCon'+id).innerHTML = '(Yes)';
+	}
+	else {
+		document.getElementById('viewCon'+id).innerHTML = '(No)';
+	}
+}
+
+function getUserPrivileges(id) {
+	if (document.getElementById('userid').value != '') {
+		if (document.getElementById('changeCon'+id).checked) {
+			sign = "True";
+		}
+		else {
+			sign = "False";
+		}
+
+
+        var user = $("#users").val();
+        $.post("/get-page-priv", {
+			user:user,
+            id:id,
+            sign:sign
+		},
+		function(data,status) {
+			$("#loadAllDetailsPrivilage").empty();
+			$("#loadAllDetailsPrivilage").append(data);
+		});
+	}
+}
+
+</script>
+{% endblock %}

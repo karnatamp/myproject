@@ -1,0 +1,42 @@
+<div class="card">
+    <h5 class="card-header">Set Privilege</h5>
+    <input type="hidden" class="form-control" id="userid" name="userid" value="{{ user_id }}">
+    <div class="table-responsive text-nowrap">
+
+        <table class="table table-hover">
+            {% for key, value in pages.items() %}
+            <thead>
+            <tr>
+                <th>{{ key }}</th>
+                <th>View (Yes/No)</th>
+                <th>Edit</th>
+            </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+            {% for row in value %}
+                {% if row.status == True %}
+                    {% set check = 'checked' %}
+                    {% set span = '(Yes)' %}
+                    {% else %}
+                    {% set check = '' %}
+                    {% set span = '(No)' %}
+                {% endif %}
+            <tr>
+                <td data-label="{{ row.name }}"> {{ row.name }}</td>
+                <td data-label="View (Yes/No)">
+                    <label>
+                        <input type="checkbox" class="checkbox" name="changeCon{{ row.priv_id }}"
+                               id="changeCon{{ row.priv_id }}" {{ check }} onClick="fillSpan('{{ row.priv_id }}')">
+                        <span id="viewCon{{ row.priv_id }}" style='margin-left:5px'>{{ span }}</span>
+                    </label>
+                </td>
+                <td>
+                    <a style="text-decoration: none;" href="javascript:getUserPrivileges('{{ row.priv_id }}')">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+</div>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include 'sidenav.html' %}
+
+<div class="layout-page">
+    {% include 'nav.html' %}
+    {% block pageContent %} {% endblock %}
+</div>
+{% endblock %}

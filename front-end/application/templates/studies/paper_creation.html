@@ -1,0 +1,180 @@
+{% extends 'base_deputy.html' %}
+{% block title %}Paper Creation{% endblock %}
+{% block styles %}
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/img/favicon/favicon.ico') }}"/>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+/>
+
+<!-- Icons. Uncomment required icon fonts -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}"/>
+
+<!-- Core CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}"
+      class="template-customizer-core-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}"
+      class="template-customizer-theme-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}"/>
+
+<!-- Vendors CSS -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}"/>
+
+<!-- Page CSS -->
+<!-- Page -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/pages/page-auth.css') }}"/>
+<!-- Helpers -->
+<script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
+
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/libs/jquery/jquery.js') }}"></script>
+<style>
+    .iinput-group {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block pageContent %}
+<div class="content-wrapper">
+    <!-- Content -->
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Studies Related/</span> Paper Creation</h4>
+
+        <!-- Basic Layout -->
+        <div class="row">
+            <div class="col-lg-8 mb-4 order-0">
+                <div class="card mb-4">
+                    <h5 class="card-header">Create Exam Papers</h5>
+                    <div class="card-body">
+                        <form id="formRegister" method="POST">
+                            <div class="mb-4">
+                                <label class="form-label" for="papercode">Paper Code</label>
+                                <input type="text" class="form-control" id="papercode" name="papercode" value="{{ code }}" readonly/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Subject *</label>
+                                <select id="subject" name="subject" class="form-select">
+                                    <option>-- select subject --</option>
+                                    {% for key in subjects %}
+                                        <option value="{{ key.subject_id }}">{{ key.course_name }} -- {{ key.subject_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" for="duration">Set Exam Duration *</label>
+                                <input type="text" class="form-control" id="duration" name="duration"
+                                       placeholder="40" onkeypress="return numOnly(event);" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label" >No Of Questions *</label>
+                                <div class="iinput-group">
+                                      <button type="button" class="quantity-decrement btn"> - </button>
+                                      <input type="text" class="noquestion" name="noquestion" value="40" min="40" max="100" style="width: 65%;">
+                                      <button type="button" class="quantity-increment btn"> + </button>
+                                </div>
+                            </div>
+                            <button type="submit" id="submitReg" name="submitReg" class="btn btn-primary">Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- / Content -->
+    <div class="content-backdrop fade"></div>
+</div>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+$(document).ready(function() {
+    function numOnly(e) {
+        var k;
+        document.all ? k = e.keyCode : k = e.which;
+        return ((k > 47 && k < 58 || k == 46));
+    }
+});
+ (function ($) {
+// Efeito spinner sem plugin - pagina carrinho - increment
+var quantity = 0;
+$('.quantity-increment').click(function(){;
+  var t = $(this).siblings('.noquestion');
+  var quantity = parseInt($(t).val());
+  $(t).val(quantity + 5);
+
+});
+
+
+// Efeito spinner sem plugin - pagina carrinho - decrement
+$('.quantity-decrement').click(function(){
+  var t = $(this).siblings('.noquestion');
+  var quantity = parseInt($(t).val());
+  if(quantity > 1){
+    $(t).val(quantity - 5);
+  }
+});
+})(jQuery);
+
+    $(document).ready(function () {
+        var loading = false;
+        $("#submitReg").click(function (event) {
+            event.preventDefault();
+            if (loading) {
+                return;
+            }
+            loading = true;
+            var subject = $("#subject").val();
+            var duration = $("#duration").val();
+            var noquestion = $("#noquestion").val();
+
+            if ((subject == "") || (duration == "") || (noquestion == "")) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Empty field detected!',
+                    text: 'Fill the required fields',
+                });
+                loading = false;
+            } else {
+                var data = $("#formRegister").serialize();
+                $.ajax({
+                    type: "POST",
+                    url: "/paper-create",
+                    contentType: "application/x-www-form-urlencoded",
+                    data: data,
+                    success: function (jsonData) {
+                        console.log(jsonData)
+                        if (jsonData.status == 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Successfully registered',
+                            }).then((result) => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: 'Try again!',
+                            }).then((result) => {
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

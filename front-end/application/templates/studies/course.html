@@ -1,0 +1,133 @@
+{% extends 'base_deputy.html' %}
+{% block title %}Course Registration{% endblock %}
+{% block styles %}
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/img/favicon/favicon.ico') }}"/>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+/>
+
+<!-- Icons. Uncomment required icon fonts -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}"/>
+
+<!-- Core CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}"
+      class="template-customizer-core-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}"
+      class="template-customizer-theme-css"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}"/>
+
+<!-- Vendors CSS -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}"/>
+
+<!-- Page CSS -->
+<!-- Page -->
+<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/pages/page-auth.css') }}"/>
+<!-- Helpers -->
+<script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
+
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/libs/jquery/jquery.js') }}"></script>
+
+{% endblock %}
+
+{% block pageContent %}
+<div class="content-wrapper">
+    <!-- Content -->
+
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Studies Related/</span> Course Registration</h4>
+
+        <!-- Basic Layout -->
+        <div class="row">
+            <div class="col-xl">
+                <div class="card mb-12">
+                    <div class="card-body">
+                        <form id="formRegister" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label" for="cname">Course Name *</label>
+                                <input type="text" class="form-control" id="cname" name="cname"
+                                       placeholder="SE"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="semester">Semester *</label>
+                                <input type="text" class="form-control" id="semester" name="semester"
+                                       placeholder="First Sem"/>
+                            </div>
+                            <button type="submit" id="submitReg" name="submitReg" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl">
+                <div class="card mb-2">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- / Content -->
+    <div class="content-backdrop fade"></div>
+</div>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).ready(function (){
+    var loading = false;
+    $("#submitReg").click(function (event){
+        event.preventDefault();
+        if(loading){
+            return ;
+        }
+
+        loading = true;
+        var cname = $("#cname").val();
+        var semester = $("#semester").val();
+
+        if ((cname == "") || (semester == ""))
+        {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Empty field detected!',
+              text: 'Fill the required fields',
+            });
+            loading = false;
+        }
+        else {
+            var data = $("#formRegister").serialize();
+            $.ajax({
+                type: "POST",
+                url: "/course-reg",
+                contentType: "application/x-www-form-urlencoded",
+                data: data,
+                success: function (jsonData) {
+                    console.log(jsonData)
+                    if (jsonData.status == 200) {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Successfully registered',
+                        }).then((result) => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Oops...',
+                          text: 'Try again!',
+                        }).then((result) => {
+                            location.reload();
+                        });
+                    }
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
